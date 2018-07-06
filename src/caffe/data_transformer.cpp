@@ -82,15 +82,15 @@ void DataTransformer<Dtype>::ReadMetaData(MetaData& meta, const string& data, si
   meta.objpos -= Point2f(1,1);
   // ------------ scale_self, joint_self --------------
   DecodeFloats(data, offset3+4*offset1, &meta.scale_self, 1);
-  meta.joint_self.joints.resize(np_in_lmdb);
-  meta.joint_self.isVisible.resize(np_in_lmdb);
+  meta.joint_self.joints.resize(np_in_lmdb);  // init size of "joints" (vector<Points>)
+  meta.joint_self.isVisible.resize(np_in_lmdb);  // init size if "isVisible" (vector<int>)
   for(int i=0; i<np_in_lmdb; i++){
     DecodeFloats(data, offset3+5*offset1+4*i, &meta.joint_self.joints[i].x, 1);
     DecodeFloats(data, offset3+6*offset1+4*i, &meta.joint_self.joints[i].y, 1);
     meta.joint_self.joints[i] -= Point2f(1,1); //from matlab 1-index to c++ 0-index
     float isVisible;
     DecodeFloats(data, offset3+7*offset1+4*i, &isVisible, 1);
-    meta.joint_self.isVisible[i] = (isVisible == 0) ? 0 : 1;
+    meta.joint_self.isVisible[i] = (isVisible == 0) ? 0 : 1;  // TODO: 将 “isVisible”的值限制在 [0,1]? 不考虑原数据中的“2”？
     if(meta.joint_self.joints[i].x < 0 || meta.joint_self.joints[i].y < 0 ||
        meta.joint_self.joints[i].x >= meta.img_size.width || meta.joint_self.joints[i].y >= meta.img_size.height){
       meta.joint_self.isVisible[i] = 2; // 2 means cropped, 0 means occluded by still on image
@@ -447,8 +447,8 @@ template<typename Dtype> void DataTransformer<Dtype>::Transform_CPM(const Datum&
     cv::cvtColor(img, img, CV_GRAY2BGR);
   }
 
-  int offset3 = 3 * offset;
-  int offset1 = datum_width;
+  int offset3 = 3 * offset;  // skip bgr channels
+  int offset1 = datum_width;  // one row in a channel
   ReadMetaData(meta, data, offset3, offset1);
   if(param_.transform_body_joint()) // we expect to transform body joints, and not to transform hand joints
     TransformMetaJoints(meta);
@@ -778,6 +778,7 @@ void DataTransformer<Dtype>::generateLabelMap(Dtype* transformed_label, Mat& img
     if(meta.joint_self.isVisible[i] <= 1){
       putGaussianMaps(transformed_label + i*channelOffset, center, param_.stride(), 
                       grid_x, grid_y, param_.sigma()); //self
+        // TODO: transformed_label is double size of "(np+1)", "1" representing background
       putGaussianMaps(transformed_label + (i+np+1)*channelOffset, center, param_.stride(), 
                       grid_x, grid_y, param_.sigma()); //self
     }

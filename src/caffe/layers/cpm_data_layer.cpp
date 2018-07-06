@@ -39,17 +39,18 @@ void CPMDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   vector<int> top_shape(4);
 
   // image
-  const int batch_size = this->layer_param_.cpmdata_param().batch_size();
-  const int height = this->layer_param_.transform_param().crop_size_y();
-  const int width = this->layer_param_.transform_param().crop_size_x();
-  const bool put_gaussian = this->layer_param_.transform_param().put_gaussian();
+  const int batch_size = this->layer_param_.cpmdata_param().batch_size(); // batch size
+  const int height = this->layer_param_.transform_param().crop_size_y();  // input height
+  const int width = this->layer_param_.transform_param().crop_size_x();  // input width
+  const bool put_gaussian = this->layer_param_.transform_param().put_gaussian();  // put gaussian map in "top : data"
 
+    // top->data 中带有“gaussian map”, 此时 top->label 为空;
   if(put_gaussian){
-    top[0]->Reshape(batch_size, 4, height, width);
+    top[0]->Reshape(batch_size, 4, height, width);  // reshape top->data with (bs,3+1,h,w)
     for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
-      this->prefetch_[i].data_.Reshape(batch_size, 4, height, width);
+      this->prefetch_[i].data_.Reshape(batch_size, 4, height, width);  // 预加载的数据
     }
-    this->transformed_data_.Reshape(1, 4, height, width);
+    this->transformed_data_.Reshape(1, 4, height, width);  // 网络训练前预处理的数据,每次预处理一个;
   }
   else {
     top[0]->Reshape(batch_size, 3, height, width);
@@ -63,12 +64,12 @@ void CPMDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
       << top[0]->channels() << "," << top[0]->height() << ","
       << top[0]->width();
 
-  // label
+  // "True" when top.size()!=1
   if (this->output_labels_) {
-    const int stride = this->layer_param_.transform_param().stride();
-    int num_parts = this->layer_param_.transform_param().num_parts();
+    const int stride = this->layer_param_.transform_param().stride();  // default=8, output_feat_map_size=(bs,15,46,46)
+    int num_parts = this->layer_param_.transform_param().num_parts();  // default=14
 
-    top[1]->Reshape(batch_size, 2*(num_parts+1), height/stride, width/stride); //plus 1 for background
+    top[1]->Reshape(batch_size, 2*(num_parts+1), height/stride, width/stride); //plus 1 for background, Label_size=(bs,30,46,46) ,will be slice into two!!!
     for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
       this->prefetch_[i].label_.Reshape(batch_size, 2*(num_parts+1), height/stride, width/stride);
     }
