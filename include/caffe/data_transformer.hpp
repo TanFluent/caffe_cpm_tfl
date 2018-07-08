@@ -176,7 +176,7 @@ class DataTransformer {
   int np_in_lmdb;
   int np;
   bool is_table_set;
-  bool cloth_lm_dataset;
+  string cloth_lm_dataset;
 
   vector<vector<float> > aug_degs;
   vector<vector<int> > aug_flips;

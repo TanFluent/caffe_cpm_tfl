@@ -161,7 +161,7 @@ template<typename Dtype>
 void DataTransformer<Dtype>::TransformMetaJoints(MetaData& meta) {
   //transform joints in meta from np_in_lmdb (specified in prototxt) to np (specified in prototxt)
 
-  if(cloth_lm_dataset == 'None') {
+  if(cloth_lm_dataset == "None") {
     // copy with human keypoints
     TransformJoints(meta.joint_self);
     for (int i = 0; i < meta.joint_others.size(); i++) {
@@ -598,7 +598,7 @@ Size DataTransformer<Dtype>::augmentation_croppad(Mat& img_src, Mat& img_dst, Me
 template<typename Dtype>
 void DataTransformer<Dtype>::swapLeftRight(Joints& j) {
 
-  if(cloth_lm_dataset == 'None'){
+  if(cloth_lm_dataset == "None"){
     //MPII R leg: 0(ankle), 1(knee), 2(hip)
     //     L leg: 5(ankle), 4(knee), 3(hip)
     //     R arms: 10(wrist), 11(elbow), 12(shoulder)
@@ -645,7 +645,7 @@ void DataTransformer<Dtype>::swapLeftRight(Joints& j) {
         j.isVisible[li] = temp_v;
       }
     }
-  }else if (cloth_lm_dataset == 'deepfashion_landmark'){
+  }else if (cloth_lm_dataset == "deepfashion_landmark"){
     // DeepFashion Landmark
     // sorted with "L R L R L R ... ..."
     for(int i=0; i < np; i++){
