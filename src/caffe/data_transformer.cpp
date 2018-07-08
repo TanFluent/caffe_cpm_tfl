@@ -162,11 +162,11 @@ void DataTransformer<Dtype>::TransformMetaJoints(MetaData& meta) {
   //transform joints in meta from np_in_lmdb (specified in prototxt) to np (specified in prototxt)
 
   if(cloth_lm_dataset == 'None') {
-      // copy with human keypoints
-      TransformJoints(meta.joint_self);
-      for (int i = 0; i < meta.joint_others.size(); i++) {
-          TransformJoints(meta.joint_others[i]);
-      }
+    // copy with human keypoints
+    TransformJoints(meta.joint_self);
+    for (int i = 0; i < meta.joint_others.size(); i++) {
+      TransformJoints(meta.joint_others[i]);
+    }
   }
 }
 
@@ -599,71 +599,69 @@ template<typename Dtype>
 void DataTransformer<Dtype>::swapLeftRight(Joints& j) {
 
   if(cloth_lm_dataset == 'None'){
-      //MPII R leg: 0(ankle), 1(knee), 2(hip)
-      //     L leg: 5(ankle), 4(knee), 3(hip)
-      //     R arms: 10(wrist), 11(elbow), 12(shoulder)
-      //     L arms: 15(wrist), 14(elbow), 13(shoulder)
-      if(np == 9){
-          int right[4] = {1,2,3,7};
-          int left[4] = {4,5,6,8};
-          for(int i=0; i<4; i++){
-              int ri = right[i] - 1;
-              int li = left[i] - 1;
-              Point2f temp = j.joints[ri];
-              j.joints[ri] = j.joints[li];
-              j.joints[li] = temp;
-              int temp_v = j.isVisible[ri];
-              j.isVisible[ri] = j.isVisible[li];
-              j.isVisible[li] = temp_v;
-          }
+    //MPII R leg: 0(ankle), 1(knee), 2(hip)
+    //     L leg: 5(ankle), 4(knee), 3(hip)
+    //     R arms: 10(wrist), 11(elbow), 12(shoulder)
+    //     L arms: 15(wrist), 14(elbow), 13(shoulder)
+    if(np == 9){
+      int right[4] = {1,2,3,7};
+      int left[4] = {4,5,6,8};
+      for(int i=0; i<4; i++){
+        int ri = right[i] - 1;
+        int li = left[i] - 1;
+        Point2f temp = j.joints[ri];
+        j.joints[ri] = j.joints[li];
+        j.joints[li] = temp;
+        int temp_v = j.isVisible[ri];
+        j.isVisible[ri] = j.isVisible[li];
+        j.isVisible[li] = temp_v;
       }
-      else if(np == 14){
-          int right[6] = {3,4,5,9,10,11}; //1-index
-          int left[6] = {6,7,8,12,13,14}; //1-index
-          for(int i=0; i<6; i++){
-              int ri = right[i] - 1;
-              int li = left[i] - 1;
-              Point2f temp = j.joints[ri];
-              j.joints[ri] = j.joints[li];
-              j.joints[li] = temp;
-              int temp_v = j.isVisible[ri];
-              j.isVisible[ri] = j.isVisible[li];
-              j.isVisible[li] = temp_v;
-          }
+    }
+    else if(np == 14){
+      int right[6] = {3,4,5,9,10,11}; //1-index
+      int left[6] = {6,7,8,12,13,14}; //1-index
+      for(int i=0; i<6; i++){
+        int ri = right[i] - 1;
+        int li = left[i] - 1;
+        Point2f temp = j.joints[ri];
+        j.joints[ri] = j.joints[li];
+        j.joints[li] = temp;
+        int temp_v = j.isVisible[ri];
+        j.isVisible[ri] = j.isVisible[li];
+        j.isVisible[li] = temp_v;
       }
-      else if(np == 28){
-          int right[11] = {3,4,5,9,10,11,18,19,20,24,25}; //1-index
-          int left[11] = {6,7,8,12,13,14,21,22,23,26,27}; //1-index
-          for(int i=0; i<11; i++){
-              int ri = right[i] - 1;
-              int li = left[i] - 1;
-              Point2f temp = j.joints[ri];
-              j.joints[ri] = j.joints[li];
-              j.joints[li] = temp;
-              int temp_v = j.isVisible[ri];
-              j.isVisible[ri] = j.isVisible[li];
-              j.isVisible[li] = temp_v;
-          }
+    }
+    else if(np == 28){
+      int right[11] = {3,4,5,9,10,11,18,19,20,24,25}; //1-index
+      int left[11] = {6,7,8,12,13,14,21,22,23,26,27}; //1-index
+      for(int i=0; i<11; i++){
+        int ri = right[i] - 1;
+        int li = left[i] - 1;
+        Point2f temp = j.joints[ri];
+        j.joints[ri] = j.joints[li];
+        j.joints[li] = temp;
+        int temp_v = j.isVisible[ri];
+        j.isVisible[ri] = j.isVisible[li];
+        j.isVisible[li] = temp_v;
       }
+    }
   }else if (cloth_lm_dataset == 'deepfashion_landmark'){
-      // DeepFashion Landmark
-      // sorted with "L R L R L R ... ..."
-      int arr_l = np/2;
-      int right[arr_l], left[arr_l];
-      for(int i=0; i < arr_l; i++){
-          right[i] = i + 1;
-          left[i] = i;
+    // DeepFashion Landmark
+    // sorted with "L R L R L R ... ..."
+    for(int i=0; i < np; i++){
+
+      if((i % 2)==0){
+        continue;
       }
-      for(int i=0; i<arr_l; i++){
-          int ri = right[i];
-          int li = left[i];
-          Point2f temp = j.joints[ri];
-          j.joints[ri] = j.joints[li];
-          j.joints[li] = temp;
-          int temp_v = j.isVisible[ri];
-          j.isVisible[ri] = j.isVisible[li];
-          j.isVisible[li] = temp_v;
-      }
+      int ri = i;
+      int li = i - 1;
+      Point2f temp = j.joints[ri];
+      j.joints[ri] = j.joints[li];
+      j.joints[li] = temp;
+      int temp_v = j.isVisible[ri];
+      j.isVisible[ri] = j.isVisible[li];
+      j.isVisible[li] = temp_v;
+    }
   }
   
 
