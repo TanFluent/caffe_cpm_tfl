@@ -468,7 +468,7 @@ message TransformationParameter {
   // if true, images with kp heatmap will be store and show
   optional bool visualize_label = 40 [default = false];
   // Should be "deepfashion_landmark"/"fashionai_cloth_landmark"
-  optional bool cloth_lm_dataset = 41 [default = 'None'];
+  optional string cloth_lm_dataset = 41 [default = 'None'];
 }
 
 // Message that stores parameters used by ROIPoolingLayer
